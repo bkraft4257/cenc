@@ -10,7 +10,7 @@ alias cenc_freesurfer='${CENC_PYTHON_PATH}/cenc_freesurfer.py'
 alias cenc_id='${CENC_PYTHON_PATH}/cenc_id.py'
 alias cenc_mt='${CENC_PYTHON_PATH}/cenc_mt.py'
 alias cenc_mv_incoming='${CENC_PYTHON_PATH}/cenc_mv_incoming.sh'
-alias cenc_swi='$CENC_PATH/='${CENC_PYTHON_PATH}/cenc_swi.py'
+alias cenc_swi='${CENC_PYTHON_PATH}/cenc_swi.py'
 alias cenc_wmlesions='${CENC_PYTHON_PATH}/cenc_wmlesions.py'
 
 
@@ -104,4 +104,3 @@ cdcds() {
 #	 title cencData
 #  fi
 #}
-
