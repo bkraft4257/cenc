@@ -1,6 +1,20 @@
-## Cenc Aliases
+## Python Aliases
 #
 
+export CENC_PYTHON_PATH=${CENC_PATH}/cenc
+
+#alias cenc_aseg_labels.sh
+
+alias cenc_dcm_parse='${CENC_PYTHON_PATH}/cenc_dcm_parse.sh'
+alias cenc_freesurfer='${CENC_PYTHON_PATH}/cenc_freesurfer.py'
+alias cenc_id='${CENC_PYTHON_PATH}/cenc_id.py'
+alias cenc_mt='${CENC_PYTHON_PATH}/cenc_mt.py'
+alias cenc_mv_incoming='${CENC_PYTHON_PATH}/cenc_mv_incoming.sh'
+alias cenc_swi='$CENC_PATH/='${CENC_PYTHON_PATH}/cenc_swi.py'
+alias cenc_wmlesions='${CENC_PYTHON_PATH}/cenc_wmlesions.py'
+
+
+# Aliases
 alias rec='source $CENC_PATH/cenc_alias.sh'
 alias recenc='source $CENC_PATH/cenc_alias.sh'
 
