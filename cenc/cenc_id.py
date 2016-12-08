@@ -19,6 +19,14 @@ import nipype.interfaces.fsl as fsl
 from   nipype.pipeline.engine import Workflow, Node
 
 
+def extract_participant_id(in_dir, pattern):
+     match = re.findall(pattern, in_dir)
+
+     if not len(match) == 1:
+          sys.exit('Participant ID not found')
+
+     return match[0]
+
 def main():
      ## Parsing Arguments
      #

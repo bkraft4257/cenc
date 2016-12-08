@@ -21,6 +21,15 @@ from collections import OrderedDict
 import iwUtilities     as util
 
 
+def extract_participant_id(in_dir, pattern):
+    match = re.findall(pattern, in_dir)
+
+    if not len(match) == 1:
+        sys.exit('Participant ID not found')
+
+    return match[0]
+
+
 def participants(in_cenc_dir, in_method, in_filter='study', verbose=False):
      
      if in_filter in 'study':
@@ -65,7 +74,7 @@ def participant_id(in_dir, cenc_dir=os.getenv('CENC_MRI_DATA'), acrostic_flag=Tr
 #     print(['Is directory', in_dir])
 
      in_abs_dir = os.path.abspath(in_dir)     
-     cenc_participant_id     = util.extract_participant_id( in_abs_dir,'34P[19]\d{3}')
+     cenc_participant_id     = extract_participant_id( in_abs_dir,'34P[19]\d{3}')
      cenc_participant_dir    = os.path.abspath( os.path.join( cenc_dir, cenc_participant_id))
      cenc_participant_exists = os.path.isdir(cenc_participant_dir)
 
