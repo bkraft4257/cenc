@@ -10,7 +10,7 @@ import re
 import argparse
 import iwUtilities as util
 import cenc
-import imcollective_freesurfer  
+import tic_freesurfer
 import json 
 
 import nipype.interfaces.fsl as fsl
@@ -21,7 +21,6 @@ from   nipype.pipeline.engine import Workflow, Node
 #----------------------------------------------------------------------------------------------------------------------
 #
 #
-
 
 def prepare( input_dir ):
 
