@@ -13,7 +13,7 @@ case $HOST in
 
   aging1a | aging2a)
     export CENC_PATH=/cenc/tic/studies/cenc
-    export CENC_DISK=/Volumes/cenc/
+    export CENC_DISK=/cenc/
     ;;
 
   *)
