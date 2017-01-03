@@ -3,15 +3,18 @@
 #
 #
 
+echo
+
 case $HOST in
   flip.medctr.ad.wfubmc.edu)
+    echo 'flip'
     export CENC_PATH=/Users/bkraft/PycharmProjects/cenc
     export CENC_DISK=/Volumes/cenc/
     ;;
 
   aging1a | aging2a)
-
-    export CENC_PATH=/Users/bkraft/PycharmProjects/cenc
+    echo 'aging1a/aging2a'
+    export CENC_PATH=/cenc/tic/studies/cenc
     export CENC_DISK=/Volumes/cenc/
     ;;
 
@@ -19,7 +22,8 @@ case $HOST in
      echo "Unknown HOSTNAME"
 esac
 
-
+echo $CENC_PATH
+echo
 
 #
 
