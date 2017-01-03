@@ -18,7 +18,7 @@ alias cenc_wmlesions='${CENC_PYTHON_PATH}/cenc_wmlesions.py'
 alias rec='source $CENC_PATH/other/unix/cenc_alias.sh'
 alias recenc='source $CENC_PATH/other/unix/cenc_alias.sh'
 
-alias cenc_redcap_upload='/opt/anaconda3-4.2.0/bin/python3 ${TIC_REDCAP_LINK_PATH}/redcap_link/redcap_upload.py'
+alias cenc_redcap='python3 ${TIC_REDCAP_LINK_PATH}/redcap_link/redcap_upload.py cenc'
 
 alias cdcencp='cd $CENC_PATH;    echo; ls;  echo'
 alias cdcencs='cd $CENC_SCRIPTS; echo; ls;  echo'
