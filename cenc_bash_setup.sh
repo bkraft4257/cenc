@@ -1,25 +1,9 @@
-### Cenc bash shell environment
+#!/usr/bin/env bash
+
+# CENC bash shell environment. These enviroment variables should be placed in your initial shell script.
 #
-#
-
-case $HOST in
-  flip.medctr.ad.wfubmc.edu)
-    export CENC_PATH=/Users/bkraft/PycharmProjects/cenc
-    export CENC_DISK=/Volumes/cenc/
-    ;;
-
-  aging1a | aging2a)
-
-    export CENC_PATH=/Users/bkraft/PycharmProjects/cenc
-    export CENC_DISK=/Volumes/cenc/
-    ;;
-
-  *)
-     echo "Unknown HOSTNAME"
-esac
-
-
-
+# export CENC_PATH=/Users/bkraft/PycharmProjects/cenc
+# export CENC_DISK=/Volumes/cenc/
 #
 
 
