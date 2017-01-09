@@ -33,6 +33,6 @@ export CENC_CTF_TEMPLATE="$IMAGEWAKE2_TEMPLATES/ixi/cerebellum_isotropic/ixiIsot
 
 export PYTHONPATH=${CENC_PATH}/cenc/:$PYTHONPATH
 
-source ${CENC_PATH}/other/unix/cenc_alias.sh
+source ${CENC_PATH}/other/unix/cenc_aliases.sh
 
 
