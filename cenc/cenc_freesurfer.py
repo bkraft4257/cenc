@@ -10,7 +10,7 @@ import re
 import argparse
 import iwUtilities as util
 import cenc
-import tic_freesurfer
+import imcollective_freesurfer  
 import json 
 
 import nipype.interfaces.fsl as fsl
@@ -21,6 +21,7 @@ from   nipype.pipeline.engine import Workflow, Node
 #----------------------------------------------------------------------------------------------------------------------
 #
 #
+
 
 def prepare( input_dir ):
 
@@ -183,10 +184,15 @@ def main():
                         default=False)
     parser.add_argument("--methods", help="Freesurfer methods", nargs='*', choices=['recon-all', 'edit_pial'],
                         default=[None])
-    parser.add_argument("--qa_methods", help="QA methods", nargs='*', choices=['recon-all', 'edit_pial'],
+    parser.add_argument("--qm", "--qa_methods", help="QA methods", nargs='*', choices=['recon-all', 'edit_pial'],
                         default=[None])
+
     parser.add_argument("--results", help="Gather Freesurfer results", action="store_true", default=False)
+
     parser.add_argument("--results_force", help="Gather Freesurfer results", action="store_true", default=False)
+
+    parser.add_argument("--redcap", help="Upload Freesurfer results to Red Cap", action="store_true", default=False)
+
     parser.add_argument("--status", help="Status check. choices=['run', 'results']", nargs='*',
                         choices=['results', 'run', 'all'], default=[None])
 
@@ -268,6 +274,12 @@ def main():
     if 'results' in inArgs.status or 'all' in inArgs.status:
         status_results(inArgs.in_dir, True)
 
+
+    # RedCAP
+
+    if inArgs.redcap:
+         redcap_upload()
+        
 
 #
 # Main Function

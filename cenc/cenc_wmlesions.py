@@ -9,9 +9,10 @@ import os                                               # system functions
 import re
 import glob
 import shutil
-import iw_labels_label
-import iw_labels_stats
-import iw_labels_keep
+import labels 
+#import iw_labels_label
+#import iw_labels_stats
+#import iw_labels_keep
 import numpy
 import pandas
 import json
