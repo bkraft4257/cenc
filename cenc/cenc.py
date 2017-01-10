@@ -18,7 +18,7 @@ import json
 
 from collections import OrderedDict
 
-import iwUtilities     as util
+import _utilities     as util
 
 
 def extract_participant_id(in_dir, pattern):
