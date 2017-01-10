@@ -10,15 +10,12 @@ import re
 import glob
 import shutil
 import labels 
-#import iw_labels_label
-#import iw_labels_stats
-#import iw_labels_keep
 import numpy
 import pandas
 import json
 
 import argparse
-import iwUtilities as util
+import _utilities as util
 import gzip
 import cenc 
 import subprocess
