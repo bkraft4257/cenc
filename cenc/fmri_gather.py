@@ -34,6 +34,8 @@ if __name__ == "__main__":
     parser.add_argument("--out_dir", help="NIFTI data directory", default='./data/fmri')
     parser.add_argument("--tarball", help="tarball name", default=None)
 
+    parser.add_argument('-v', '--verbose', help="Verbose flag", action="store_true", default=False)
+
     inArgs = parser.parse_args()
 
     #
@@ -56,6 +58,15 @@ if __name__ == "__main__":
 
     if os.path.isfile(os.path.join(out_dir, tarball_filename)):
         sys.exit('fMRI tarball already exists for ' + id + '.')
+
+    # Dump out names
+    if inArgs.verbose:
+        print('\nCENC ID: ' + id)
+        print('CENC participant directory : ', participant_dir)
+        print('CENC nifti directory : ', nifti_dir)
+        print('CENC fMRI directory : ', out_dir)
+        print('CENC fMRI tarball : ', tarball_filename)
+        print('\n')
 
     # Create Output Directory if it doesn't exist
 
