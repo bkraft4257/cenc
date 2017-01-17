@@ -7,6 +7,10 @@ export CENC_PYTHON_PATH=${CENC_PATH}/cenc
 #alias cenc_aseg_labels.sh
 
 alias cenc_dcm_parse='${CENC_PYTHON_PATH}/cenc_dcm_parse.sh'
+
+alias cenc_dcm_clean_draft='grep -v rs02 dcmConvert_cenc.cfg.draft | dcm_remove_rs |
+                            sort -n | tee dcmConvert_cenc.cfg'
+
 alias cenc_freesurfer='${CENC_PYTHON_PATH}/cenc_freesurfer.py'
 alias cenc_id='${CENC_PYTHON_PATH}/cenc_id.py'
 alias cenc_mt='${CENC_PYTHON_PATH}/cenc_mt.py'
