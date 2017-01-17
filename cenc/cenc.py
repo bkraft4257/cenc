@@ -104,17 +104,18 @@ def directories( input_dir ):
           sys.exit()
 
      cenc_freesurfer_subjects_dir =  os.getenv('CENC_SUBJECTS_DIR')
-     cenc_results_native_dir = os.path.abspath( os.path.join( cenc_participant_dir, 'results', 'native')) 
+     cenc_results_native_dir = os.path.abspath( os.path.join( cenc_participant_dir, 'results', 'native'))
+     cenc_data_dir = os.path.abspath(os.path.join(cenc_participant_dir, 'data'))
 
 
      cenc_dict = { 'id': cenc_participant_id, 
                    'root': cenc_participant_dir, 'results': cenc_results_native_dir,
                    'freesurfer_subjects_dir': cenc_freesurfer_subjects_dir, 
                    'reorient': util.path_relative_to( cenc_participant_dir, 'reorient'),
-                   'data': util.path_relative_to(cenc_participant_dir, 'data'),
-                   'dicom': util.path_relative_to(cenc_participant_dir, 'data', 'dicom'),
-                   'nifti': util.path_relative_to(cenc_participant_dir, 'data', 'nifti'),
-                   'nifti': util.path_relative_to(cenc_participant_dir, 'data', 'fmri'),
+                   'data': cenc_data_dir,
+                   'dicom': util.path_relative_to(cenc_data_dir, 'dicom'),
+                   'nifti': util.path_relative_to(cenc_data_dir, 'nifti'),
+                   'nifti': util.path_relative_to(cenc_data_dir, 'fmri'),
                    'functional': util.path_relative_to( cenc_participant_dir, 'functional'), 
                    'structural': util.path_relative_to( cenc_participant_dir, 'structural'),
                    } 
