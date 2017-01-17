@@ -42,12 +42,12 @@ if __name__ == "__main__":
 
     cenc_dirs = cenc.directories(inArgs.in_dir)
 
-    id = cenc_dirs['id']
+    id = cenc_dirs['cenc']['id']
 
-    participant_dir = cenc_dirs['root']
-    nifti_dir = cenc_dirs['nifti']
-    dicom_dir = cenc_dirs['dicom']
-    out_dir = cenc_dirs['fmri']
+    participant_dir = cenc_dirs['cenc']['root']
+    nifti_dir = cenc_dirs['cenc']['nifti']
+    dicom_dir = cenc_dirs['cenc']['dicom']
+    out_dir = cenc_dirs['cenc']['fmri']
 
     if not inArgs.tarball == None:
         tarball_filename = inArgs.tarball
