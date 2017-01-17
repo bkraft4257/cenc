@@ -115,7 +115,7 @@ def directories( input_dir ):
                    'data': cenc_data_dir,
                    'dicom': util.path_relative_to(cenc_data_dir, 'dicom'),
                    'nifti': util.path_relative_to(cenc_data_dir, 'nifti'),
-                   'nifti': util.path_relative_to(cenc_data_dir, 'fmri'),
+                   'fmri': util.path_relative_to(cenc_data_dir, 'fmri'),
                    'functional': util.path_relative_to( cenc_participant_dir, 'functional'), 
                    'structural': util.path_relative_to( cenc_participant_dir, 'structural'),
                    } 
