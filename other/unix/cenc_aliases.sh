@@ -20,8 +20,8 @@ alias cenc_wmlesions='${CENC_PYTHON_PATH}/cenc_wmlesions.py'
 
 
 # Aliases
-alias rec='source $CENC_PATH/other/unix/cenc_alias.sh'
-alias recenc='source $CENC_PATH/other/unix/cenc_alias.sh'
+alias rec='source $CENC_PATH/other/unix/cenc_aliases.sh'
+alias recenc='source $CENC_PATH/other/unix/cenc_aliases.sh'
 
 alias cenc_redcap='python3 ${TIC_REDCAP_LINK_PATH}/redcap_link/redcap_upload.py cenc'
 
