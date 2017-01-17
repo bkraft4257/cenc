@@ -2,14 +2,14 @@
 
 FSLDIR=/aging1/software//fsl5.09/bin
 
-iw_labels_extract.py aseg.nii.gz -x 10 11 12 13 17 18 --out gm.left_subcortical.nii.gz
-iw_labels_extract.py aseg.nii.gz -x 49 50 51 52 53 54 --out gm.right_subcortical.nii.gz
+python2 ${TIC_LABELS_PYTHONPATH}/aseg.nii.gz -x 10 11 12 13 17 18 --out gm.left_subcortical.nii.gz
+python2 ${TIC_LABELS_PYTHONPATH}/aseg.nii.gz -x 49 50 51 52 53 54 --out gm.right_subcortical.nii.gz
 
-iw_labels_extract.py aseg.nii.gz -x 8 47 --out gm.cerebral_cortex.nii.gz
-iw_labels_extract.py aseg.nii.gz -x 3 42 --out gm.cerebellum_cortex.nii.gz
+python2 ${TIC_LABELS_PYTHONPATH}/aseg.nii.gz -x 8 47 --out gm.cerebral_cortex.nii.gz
+python2 ${TIC_LABELS_PYTHONPATH}/aseg.nii.gz -x 3 42 --out gm.cerebellum_cortex.nii.gz
 
-iw_labels_extract.py aseg.nii.gz -x 2 41 --out wm.cerebral.nii.gz
-iw_labels_extract.py aseg.nii.gz -x 7 46 --out wm.cerebellum.nii.gz
+python2 ${TIC_LABELS_PYTHONPATH}/aseg.nii.gz -x 2 41 --out wm.cerebral.nii.gz
+python2 ${TIC_LABELS_PYTHONPATH}/aseg.nii.gz -x 7 46 --out wm.cerebellum.nii.gz
 
 for ii in gm.left_subcortical.nii.gz gm.right_subcortical.nii.gz \
           gm.cerebral_cortex.nii.gz gm.cerebellum_cortex.nii.gz  \
