@@ -17,6 +17,7 @@ alias cenc_mt='${CENC_PYTHON_PATH}/cenc_mt.py'
 alias cenc_mv_incoming='${CENC_PYTHON_PATH}/cenc_mv_incoming.sh'
 alias cenc_swi='${CENC_PYTHON_PATH}/cenc_swi.py'
 alias cenc_wmlesions='${CENC_PYTHON_PATH}/cenc_wmlesions.py'
+alias cenc_fmri_gather='${CENC_PYTHON_PATH}/fmri_gather.py'
 
 
 # Aliases
