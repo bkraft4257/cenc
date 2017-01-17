@@ -9,9 +9,9 @@ import re
 import pandas
 import json
 import argparse
-import iwUtilities as util
+import _utilities as util
 import cenc
-import iw_labels
+import labels
 import datetime
 from collections import OrderedDict
 import getpass
