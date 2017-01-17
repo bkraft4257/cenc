@@ -8,9 +8,9 @@ import os                                               # system functions
 import re
 
 import argparse
-import iwUtilities as util
+import _utilities as util
 import cenc
-import imcollective_freesurfer  
+import freesurfer  as tic_freesurfer
 import json 
 
 import nipype.interfaces.fsl as fsl
@@ -184,7 +184,8 @@ def main():
                         default=False)
     parser.add_argument("--methods", help="Freesurfer methods", nargs='*', choices=['recon-all', 'edit_pial'],
                         default=[None])
-    parser.add_argument("--qm", "--qa_methods", help="QA methods", nargs='*', choices=['recon-all', 'edit_pial'],
+
+    parser.add_argument("--qm", help="QA methods", nargs='*', choices=['recon-all', 'edit_pial'],
                         default=[None])
 
     parser.add_argument("--results", help="Gather Freesurfer results", action="store_true", default=False)
@@ -208,7 +209,7 @@ def main():
 
     cenc_dirs = cenc.directories(inArgs.in_dir)
 
-    fs_info = imcollective_freesurfer.get_info(cenc_dirs['cenc']['id'],
+    fs_info = tic_freesurfer.get_info(cenc_dirs['cenc']['id'],
                                                cenc_dirs['freesurfer']['subjects_dir'],
                                                cenc_dirs['freesurfer']['t1w'],
                                                cenc_dirs['freesurfer']['t2w'],
@@ -230,20 +231,20 @@ def main():
     #
 
     if 'recon-all' in inArgs.methods:
-        imcollective_freesurfer.methods_recon_all(fs_info, inArgs.verbose)
+        tic_freesurfer.methods_recon_all(fs_info, inArgs.verbose)
 
     if 'edit_pial' in inArgs.methods:
-        imcollective_freesurfer.methods_recon_edit_pial(fs_info, inArgs.verbose)
+        tic_freesurfer.methods_recon_edit_pial(fs_info, inArgs.verbose)
 
     #
     # QA
     #
 
-    if 'recon' in inArgs.qa_methods:
-        imcollective_freesurfer.qa_methods_recon(fs_info, inArgs.verbose)
+    if 'mri' in inArgs.qm:
+        tic_freesurfer.qa_methods_mri(fs_info, inArgs.verbose)
 
-    if 'edit_pial' in inArgs.qa_methods:
-        imcollective_freesurfer.qa_methods_edit_pial(fs_info, inArgs.verbose)
+    if 'edit_pial' in inArgs.qm:
+        tic_freesurfer.qa_methods_edit_pial(fs_info, inArgs.verbose)
 
     #
     # Results
