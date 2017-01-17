@@ -358,9 +358,9 @@ def qa_results(in_dir, verbose=False):
      qa_command   = ['freeview', '-v' ] + result_files
 
      if verbose:
-          print
+          print(' ')
           print(' '.join(qa_command))
-          print
+          print(' ')
 
      DEVNULL = open(os.devnull, 'wb')
      pipe = subprocess.Popen( [ ' '.join(qa_command) ], shell=True,
