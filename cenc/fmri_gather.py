@@ -12,6 +12,7 @@ import glob
 
 import argparse
 import _utilities as util
+import cenc
 
 #
 # Main Function
@@ -25,8 +26,8 @@ if __name__ == "__main__":
 
     usage = "usage: %prog [options] arg1 arg2"
 
+    parser.add_argument("--in_dir", help="Participant directory", default=os.getcwd())
     parser = argparse.ArgumentParser(prog='cenc_fmri_gather')
-    parser.add_argument("in_dir", help="Participant directory")
     parser.add_argument("--cenc_dir", help="CENC data directory", default=os.getenv('CENC_MRI_DATA'))
     parser.add_argument("--nifti_dir", help="NIFTI data directory", default='./data/nifti')
     parser.add_argument("--dicom_dir", help="NIFTI data directory", default='./data/dicom')
@@ -39,15 +40,14 @@ if __name__ == "__main__":
     #
     #
 
-    in_dir = os.path.abspath(inArgs.in_dir)
+    cenc_dirs = cenc.directories(inArgs.in_dir)
 
-    id = util.extract_participant_id(in_dir, '34P1\d{3}')
+    id = cenc_dirs['id']
 
-    participant_dir = os.path.abspath(os.path.join(inArgs.cenc_dir, id))
-
-    nifti_dir = util.path_relative_to(participant_dir, inArgs.nifti_dir)
-    dicom_dir = util.path_relative_to(participant_dir, inArgs.dicom_dir)
-    out_dir = util.path_relative_to(participant_dir, inArgs.out_dir)
+    participant_dir = cenc_dirs['root']
+    nifti_dir = cenc_dirs['nifti']
+    dicom_dir = cenc_dirs['dicom']
+    out_dir = cenc_dirs['fmri']
 
     if not inArgs.tarball == None:
         tarball_filename = inArgs.tarball

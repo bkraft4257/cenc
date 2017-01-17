@@ -110,7 +110,11 @@ def directories( input_dir ):
      cenc_dict = { 'id': cenc_participant_id, 
                    'root': cenc_participant_dir, 'results': cenc_results_native_dir,
                    'freesurfer_subjects_dir': cenc_freesurfer_subjects_dir, 
-                   'reorient': util.path_relative_to( cenc_participant_dir, 'reorient'), 
+                   'reorient': util.path_relative_to( cenc_participant_dir, 'reorient'),
+                   'data': util.path_relative_to(cenc_participant_dir, 'data'),
+                   'dicom': util.path_relative_to(cenc_participant_dir, 'data', 'dicom'),
+                   'nifti': util.path_relative_to(cenc_participant_dir, 'data', 'nifti'),
+                   'nifti': util.path_relative_to(cenc_participant_dir, 'data', 'fmri'),
                    'functional': util.path_relative_to( cenc_participant_dir, 'functional'), 
                    'structural': util.path_relative_to( cenc_participant_dir, 'structural'),
                    } 
