@@ -26,8 +26,8 @@ if __name__ == "__main__":
 
     usage = "usage: %prog [options] arg1 arg2"
 
-    parser.add_argument("--in_dir", help="Participant directory", default=os.getcwd())
     parser = argparse.ArgumentParser(prog='cenc_fmri_gather')
+    parser.add_argument("--in_dir", help="Participant directory", default=os.getcwd())
     parser.add_argument("--cenc_dir", help="CENC data directory", default=os.getenv('CENC_MRI_DATA'))
     parser.add_argument("--nifti_dir", help="NIFTI data directory", default='./data/nifti')
     parser.add_argument("--dicom_dir", help="NIFTI data directory", default='./data/dicom')
