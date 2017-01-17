@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 """
 
@@ -52,7 +52,7 @@ def participants(in_cenc_dir, in_method, in_filter='study', verbose=False):
      if verbose:
           print
           for ii in cenc_participants:
-               print ii
+               print(ii)
           print
 
      return cenc_participants
@@ -263,4 +263,4 @@ def print_json_redcap_instrument(json_filename):
         print('')
         print(json.dumps(json.load(infile, object_pairs_hook=OrderedDict), indent=4, ensure_ascii=True,
         sort_keys=False))
-        print(' ')
+        print('')
