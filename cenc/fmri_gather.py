@@ -64,8 +64,7 @@ if __name__ == "__main__":
         print('\nCENC ID: ' + id)
         print('CENC participant directory : ', participant_dir)
         print('CENC nifti directory : ', nifti_dir)
-        print('CENC fMRI directory : ', out_dir)
-        print('CENC fMRI tarball : ', tarball_filename)
+        print('CENC fMRI tarball : ', os.path.join(out_dir, tarball_filename))
         print('\n')
 
     # Create Output Directory if it doesn't exist
