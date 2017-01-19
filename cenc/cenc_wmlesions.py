@@ -160,7 +160,7 @@ def methods_02_lpa( input_dir, verbose ):
 
     # Run Matlab
 
-    command = ['cenc_wmlesions_run.sh', cenc_dirs['wmlesions']['dirs']['lpa'] ]
+    command = ['labels_run.sh', cenc_dirs['wmlesions']['dirs']['lpa'] ]
     util.iw_subprocess( command, verbose, verbose, False)
 
     os.chdir(cenc_dirs['wmlesions']['dirs']['lpa'])
@@ -181,13 +181,13 @@ def methods_03_stats(input_dir, verbose=False, min_lesion_volume = 10):
     wm_lesions_stats_filename =  os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_labels.csv')
 
     # Create labels file from LPA probability map
-    iw_labels_label.create(
+    labels.label.create(
       os.path.join(cenc_dirs['wmlesions']['dirs']['lpa'], 'ples_lpa_mt2flair_Affine_nu__t2flair_Warped.nii.gz'),
       os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_labels.nii.gz'))
 
 
     # Measure statistics of labels
-    iw_labels_stats.measure(os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_labels.nii.gz'),
+    labels.stats.measure(os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_labels.nii.gz'),
                           None, False, ['volume_mm3'],
                           wm_lesions_stats_filename,
                           limits_volume_voxels=[min_lesion_volume, numpy.inf],
@@ -195,7 +195,7 @@ def methods_03_stats(input_dir, verbose=False, min_lesion_volume = 10):
                           verbose=verbose, verbose_nlines=20)
 
     # Keep labels greater than 10 mm^3.  Limit is set above
-    iw_labels_keep.keep(os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_labels.nii.gz'),
+    labels.keep(os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_labels.nii.gz'),
                       [],
                       wm_lesions_stats_filename,
                       os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_labels.nii.gz')
