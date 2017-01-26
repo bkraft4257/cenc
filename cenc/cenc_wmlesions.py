@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 """
 
@@ -9,7 +9,7 @@ import os                                               # system functions
 import re
 import glob
 import shutil
-import labels 
+import labels
 import numpy
 import pandas
 import json
@@ -105,7 +105,7 @@ def ants_register(input_file):
           reg.inputs.use_histogram_matching = [True] # This is the default
           reg.inputs.output_warped_image = 't2flair_Affine_nu__' + input_file + '.nii.gz'
           reg.inputs.terminal_output='stream'
-          print reg.cmdline
+          print(reg.cmdline)
           # reg.run()
 
 
@@ -115,6 +115,8 @@ def ants_register(input_file):
                 ]
 
      util.iw_subprocess( command, True, True, False)
+
+     return
 
 
 def methods_01_register( input_dir, verbose ):
@@ -145,7 +147,6 @@ def methods_02_lpa( input_dir, verbose ):
     wm_lesions_dir       = cenc_dirs['wmlesions']['dirs']['root']
     wm_lesions_lpa_dir   = cenc_dirs['wmlesions']['dirs']['lpa']
 
-
     util.mkcd_dir( [ cenc_dirs['wmlesions']['dirs']['lpa'] ], True)
 
     util.copy_inputs( [ os.path.join( cenc_dirs['wmlesions']['dirs']['register'], 't2flair_Affine_nu__t2flair_Warped.nii.gz') ],
@@ -160,7 +161,10 @@ def methods_02_lpa( input_dir, verbose ):
 
     # Run Matlab
 
-    command = ['labels_run.sh', cenc_dirs['wmlesions']['dirs']['lpa'] ]
+    matlab_run_command =  "ps_LST_lpa('" + os.path.join( cenc_dirs['wmlesions']['dirs']['lpa'], 't2flair_Affine_nu__t2flair_Warped.nii') + "',''); exit;"
+
+    command = [ 'matlab', '-nojvm',  '-nosplash', '-nodesktop', '-r', matlab_run_command ]
+
     util.iw_subprocess( command, verbose, verbose, False)
 
     os.chdir(cenc_dirs['wmlesions']['dirs']['lpa'])
@@ -169,7 +173,8 @@ def methods_02_lpa( input_dir, verbose ):
       os.system('gzip ' + ii)
       os.chmod( str.replace(ii, '.nii','.nii.gz'), stat.S_IRUSR | stat.S_IRGRP | stat.S_IWUSR | stat.S_IWGRP)
 
-def methods_03_stats(input_dir, verbose=False, min_lesion_volume = 10):
+
+def methods_03_stats(input_dir, lower_threshold=0.5, upper_threshold=numpy.inf,  min_lesion_volume_voxels=10, verbose=False):
 
     cenc_dirs = cenc.directories(input_dir)
 
@@ -179,20 +184,32 @@ def methods_03_stats(input_dir, verbose=False, min_lesion_volume = 10):
     util.mkcd_dir([cenc_dirs['wmlesions']['dirs']['stats']], True)
 
     wm_lesions_stats_filename =  os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_labels.csv')
+    wm_lesions_pmap_stats_filename =  os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_pmap.csv')
+
+    # Mask LPA Probability Mask and remove NaN
+
+    command = [['fslmaths', os.path.join(cenc_dirs['wmlesions']['dirs']['lpa'], 'ples_lpa_mt2flair_Affine_nu__t2flair_Warped.nii.gz'),
+                '-mas', os.path.join(cenc_dirs['wmlesions']['dirs']['input'], 'mask.nii.gz'), '-nan',
+                os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_pmap.nii.gz')
+                ]]
+
+    for ii in command:
+      util.iw_subprocess(ii, verbose, verbose, False)
+
 
     # Create labels file from LPA probability map
-    labels.label.create(
-      os.path.join(cenc_dirs['wmlesions']['dirs']['lpa'], 'ples_lpa_mt2flair_Affine_nu__t2flair_Warped.nii.gz'),
-      os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_labels.nii.gz'))
 
+    labels.label_connected_components( os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_pmap.nii.gz'),
+                                       os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_labels.nii.gz'),
+                                       lower_threshold, upper_threshold )
 
-    # Measure statistics of labels
-    labels.stats.measure(os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_labels.nii.gz'),
-                          None, False, ['volume_mm3'],
-                          wm_lesions_stats_filename,
-                          limits_volume_voxels=[min_lesion_volume, numpy.inf],
-                          limits_bb_volume_voxels=[0, numpy.inf], limits_fill_factor=[0, 1], sort='volume_mm3',
-                          verbose=verbose, verbose_nlines=20)
+    # Measure properties of labels
+    labels.properties(os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_labels.nii.gz'),
+                   None, False, ['volume_mm3'],
+                   wm_lesions_stats_filename,
+                   limits_volume_voxels=[min_lesion_volume_voxels, numpy.inf],
+                   limits_bb_volume_voxels=[0, numpy.inf], limits_fill_factor=[0, 1], sort='volume_mm3',
+                   verbose=verbose, verbose_nlines=20)
 
     # Keep labels greater than 10 mm^3.  Limit is set above
     labels.keep(os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_labels.nii.gz'),
@@ -200,33 +217,31 @@ def methods_03_stats(input_dir, verbose=False, min_lesion_volume = 10):
                       wm_lesions_stats_filename,
                       os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_labels.nii.gz')
                       )
-    #  1)
-    #  2) Create a WM Lesions mask
-    #  3)
+    #  1) Create a WM Lesions mask
+    #  2) Mask LPA Registered T2 FLAIR
 
-    command = [['fslmaths', os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_labels.nii.gz'),
-              '-bin', '-mul', os.path.join(cenc_dirs['wmlesions']['dirs']['lpa'],
-                                           'ples_lpa_mt2flair_Affine_nu__t2flair_Warped.nii.gz'),
-              '-mas', os.path.join(cenc_dirs['wmlesions']['dirs']['input'], 'mask.nii.gz'),
-              os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_pmap.nii.gz')
-              ],
+    command = [ ['fslmaths', os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_labels.nii.gz'),
+                 '-bin', os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_mask.nii.gz')
+                 ],
 
-             ['fslmaths', os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_labels.nii.gz'),
-              '-bin', os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_mask.nii.gz')
-              ],
-
-             ['fslmaths',
-              os.path.join(cenc_dirs['wmlesions']['dirs']['lpa'], 'mt2flair_Affine_nu__t2flair_Warped.nii.gz'),
-              '-mas', os.path.join(cenc_dirs['wmlesions']['dirs']['input'], 'mask.nii.gz'),
-              os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_t2flair.nii.gz')
-              ]
-             ]
+                ['fslmaths',
+                 os.path.join(cenc_dirs['wmlesions']['dirs']['lpa'], 'mt2flair_Affine_nu__t2flair_Warped.nii.gz'),
+                 '-mas', os.path.join(cenc_dirs['wmlesions']['dirs']['input'], 'mask.nii.gz'),
+                 os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_t2flair.nii.gz')
+                 ]
+                ]
 
     for ii in command:
       util.iw_subprocess(ii, verbose, verbose, False)
+ 
+    # Measure Pmaps stats labels
+    df_pmap_measure = labels.measure( os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_labels.nii.gz'),
+                                      os.path.join(cenc_dirs['wmlesions']['dirs']['stats'], 'wmlesions_lpa_pmap.nii.gz'))
 
-    # Write out JSON file with RedCap Instrument
-    methods_write_json_redcap_instrument(input_dir, wm_lesions_stats_filename, verbose)
+    df_pmap_measure.to_csv(wm_lesions_pmap_stats_filename, index=False)                 
+
+   # Write out JSON file with RedCap Instrument
+    methods_write_json_redcap_instrument(input_dir, wm_lesions_stats_filename, wm_lesions_pmap_stats_filename, verbose)
 
 
 
@@ -278,24 +293,31 @@ def results( input_dir):
 
 
 
-def methods_write_json_redcap_instrument(in_dir, labels_stats_csv, verbose):
+def methods_write_json_redcap_instrument(in_dir, labels_stats_csv, labels_pmap_stats_csv, verbose):
     """ Writes out REdCap instrument measures to a JSON file"""
     cenc_dirs = cenc.directories(in_dir)
 
-    df = pandas.read_csv(labels_stats_csv)
+    df_label_stats = pandas.read_csv(labels_stats_csv)
+    df_pmap_stats = pandas.read_csv(labels_pmap_stats_csv)
 
-    number_of_lesions, _ = df.shape
+    number_of_lesions, _ = df_label_stats.shape
 
     if number_of_lesions > 0:
-        total_lesion_volume = df['volume_mm3'].sum()
-        mean_lesion_volume = df['volume_mm3'].mean()
-        std_lesion_volume = df['volume_mm3'].std()
-        largest_lesion_volume = df['volume_mm3'].max()
+        total_lesion_volume = df_label_stats['volume_mm3'].sum()
+        mean_lesion_volume = df_label_stats['volume_mm3'].mean()
+        std_lesion_volume = df_label_stats['volume_mm3'].std()
+        min_lesion_volume = df_label_stats['volume_mm3'].min()
+        max_lesion_volume = df_label_stats['volume_mm3'].max()
+        min_lesion_probability = df_pmap_stats['min'].min()
+        max_lesion_probability = df_pmap_stats['max'].max()
     else:
         total_lesion_volume = 0
         mean_lesion_volume = 0
         std_lesion_volume = 0
-        largest_lesion_volume = 0
+        min_lesion_volume = 0
+        max_lesion_volume = 0
+        min_lesion_probability = 0
+        max_lesion_probability = 0
 
     dict_redcap = OrderedDict((('subject_id', cenc_dirs['cenc']['id']),
                             ('wm_lesions_analyst', getpass.getuser()),
@@ -305,7 +327,10 @@ def methods_write_json_redcap_instrument(in_dir, labels_stats_csv, verbose):
                             ('wm_lesions_total_volume_mm3', '{0:5.1f}'.format(total_lesion_volume)),
                             ('wm_lesions_mean_volume_mm3', '{0:5.1f}'.format(mean_lesion_volume)),
                             ('wm_lesions_std_volume_mm3', '{0:5.1f}'.format(std_lesion_volume)),
-                            ('wm_lesions_largest_lesion_volume_mm3', '{0:5.1f}'.format(largest_lesion_volume))
+                            ('wm_lesions_min_lesion_volume_mm3', '{0:5.1f}'.format(min_lesion_volume)),
+                            ('wm_lesions_max_lesion_volume_mm3', '{0:5.1f}'.format(max_lesion_volume)),
+                            ('wm_lesions_min_lesion_probability', '{0:5.4f}'.format(min_lesion_probability)),
+                            ('wm_lesions_max_lesion_probability', '{0:5.4f}'.format(max_lesion_probability))
                             )
                            )
 
@@ -393,6 +418,12 @@ def main():
     parser.add_argument('--qa',       help='QA',  choices=['results','methods','input'], default=None)
     parser.add_argument("--redcap",   help="Calculate RedCap results",  action="store_true", default=False )
 
+    parser.add_argument('-l', '--lower_threshold', help="Lower threshold. (-infinity)", type=float, default=0.5)
+    parser.add_argument('-u', '--upper_threshold', help="Upper threshold. (+infinity) ", type=float, default=numpy.inf)
+
+    parser.add_argument('--min_volume_voxels', help="Minimum lesion volume in voxels to include in stats. (10 voxels) ", type=int, default=10)
+
+
     parser.add_argument('--force',    help='Force operation regardless of status',  action='store_true', default=False )
 
     parser.add_argument('-v', '--verbose',    help='Verbose',  action='store_true', default=False )
@@ -417,7 +448,11 @@ def main():
             methods_02_lpa( inArgs.in_dir, inArgs.verbose )
 
         if '03_stats' in inArgs.methods or 'all' in inArgs.methods:
-            methods_03_stats(inArgs.in_dir, inArgs.verbose)
+            methods_03_stats(inArgs.in_dir, 
+                             lower_threshold=inArgs.lower_threshold, 
+                             upper_threshold=inArgs.upper_threshold,
+                             min_lesion_volume_voxels=inArgs.min_volume_voxels,
+                             verbose=inArgs.verbose)
 
     if inArgs.results:
 

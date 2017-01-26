@@ -1,7 +1,6 @@
 #!/usr/bin/env python
-
 """
-
+Magnetization Transfer Workflow.  Registration to T1 and calculation of MT Ratio (mtr.nii.gz) image.
 """
 import sys
 import os                                               # system functions
@@ -198,7 +197,7 @@ def methods_write_json_redcap_mt_instrument(input_dir, verbose):
 
     mtr = os.path.join(cenc_dirs['mt']['dirs']['register'], 'mtr.nii.gz')
 
-    labels = [os.path.join(cenc_dirs['mt']['dirs']['input'], 'gm.cerebral_cortex.nii.gz'),
+    label_list = [os.path.join(cenc_dirs['mt']['dirs']['input'], 'gm.cerebral_cortex.nii.gz'),
     os.path.join(cenc_dirs['mt']['dirs']['input'], 'gm.subcortical.nii.gz'),
     os.path.join(cenc_dirs['mt']['dirs']['input'], 'wm.cerebral.nii.gz'),
     os.path.join(cenc_dirs['mt']['dirs']['input'], 'wmlesions_lpa_mask.nii.gz')
@@ -206,10 +205,10 @@ def methods_write_json_redcap_mt_instrument(input_dir, verbose):
 
     pandas.set_option('expand_frame_repr', False)
 
-    df_stats_gm_cortical = iw_labels.measure_image_stats(labels[0], mtr)
-    df_stats_gm_subcortical = iw_labels.measure_image_stats(labels[1], mtr)
-    df_stats_wm_cerebral = iw_labels.measure_image_stats(labels[2], mtr)
-    df_stats_wm_lesions = iw_labels.measure_image_stats(labels[3], mtr)
+    df_stats_gm_cortical = labels.measure(label_list[0], mtr)
+    df_stats_gm_subcortical = labels.measure(label_list[1], mtr)
+    df_stats_wm_cerebral = labels.measure(label_list[2], mtr)
+    df_stats_wm_lesions = labels.measure(label_list[3], mtr)
 
     dict_redcap = OrderedDict((('subject_id', cenc_dirs['cenc']['id']),
                                ('mt_analyst', getpass.getuser()),
@@ -324,16 +323,16 @@ def status_results( input_dir, verbose=False ):
      return mt_status
 
 
-def status_inputs( input_dir, verbose=False ):
+def status_inputs( input_dir, stdout=False, verbose=False ):
 
      cenc_dirs = cenc.directories( input_dir )
 
      input_files = cenc_dirs['mt']['inputs']
      label_files = cenc_dirs['mt']['labels']
 
-     mt_status = util.check_files(input_files + label_files, False)
+     mt_status = util.check_files(input_files + label_files, verbose)
 
-     if verbose:
+     if stdout:
           print( cenc_dirs['cenc']['id'] + ', cenc_mt, ' + 'input' + ', ' + str(mt_status) )
 
      return mt_status
@@ -441,16 +440,16 @@ def main():
     # Status
 
     if 'input' in inArgs.status or 'all' in inArgs.status:
-        status_inputs(inArgs.in_dir, True)
+        status_inputs(inArgs.in_dir, True, inArgs.verbose)
 
     if '01_register' in inArgs.status or 'all' in inArgs.status:
         status_methods_01_register(inArgs.in_dir, True)
 
     if '02_stats' in inArgs.status or 'all' in inArgs.status:
-        status_methods_01_register(inArgs.in_dir, True)
+        status_methods_02_stats(inArgs.in_dir, True)
 
-    if 'methods' in inArgs.status or 'all' in inArgs.status:
-        status_methods(inArgs.in_dir, True)
+#    if 'methods' in inArgs.status or 'all' in inArgs.status:
+#        status_methods(inArgs.in_dir, True)
 
     if 'results' in inArgs.status  or 'all' in inArgs.status:
         status_results(inArgs.in_dir, True)

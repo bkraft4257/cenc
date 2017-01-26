@@ -1,4 +1,4 @@
-function lst_lpa(t2flair, reference, html_report)
+function cenc_lst_lpa(t2flair, reference, html_report)
 
 if nargin<1 || isempty(t2flair)
    t2flair = fullfile(pwd,'t2flair_Affine_nu__t2flair.nii');
