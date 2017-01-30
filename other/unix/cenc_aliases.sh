@@ -21,6 +21,8 @@ alias cenc_fmri_gather='${CENC_PYTHON_PATH}/fmri_gather.py'
 
 alias cenc_update_participant_list='ls -1d ${CENC_MRI_DATA}/34P1[0-9][0-9][0-9] | tee ${CENC_MRI_DATA}/participant.list'
 
+alias cenc_lrt_participants='ls -1drt ${CENC_MRI_DATA}/34P1[0-9][0-9][0-9]'
+alias cenc_llrt_participants='ls -ldrt ${CENC_MRI_DATA}/34P1[0-9][0-9][0-9]'
 
 # Aliases
 alias rec='source $CENC_PATH/other/unix/cenc_aliases.sh'

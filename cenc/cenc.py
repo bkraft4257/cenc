@@ -232,7 +232,7 @@ def create_mask(in_brainmask, in_aseg, mask ):
      nii_brainmask   = nibabel.load(in_brainmask)
      array_brainmask = 1. * (nii_brainmask.get_data()>0)
 
-     if False:
+     if True:
           nii_aseg      = nibabel.load(in_aseg)
 
 

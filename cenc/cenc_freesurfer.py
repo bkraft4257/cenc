@@ -12,6 +12,7 @@ import _utilities as util
 import cenc
 import freesurfer  as tic_freesurfer
 import json 
+import labels
 
 import nipype.interfaces.fsl as fsl
 import nipype.interfaces.freesurfer as fs 
@@ -68,7 +69,6 @@ def results( input_dir, verbose):
 
      cenc_dirs = cenc.directories( input_dir )
      cenc_freesurfer_dir = cenc_dirs['freesurfer']['mri']
-
 
      util.mkcd_dir( [ cenc_dirs['results']['dirs']['root'],
                       cenc_dirs['results']['dirs']['images'],
@@ -127,10 +127,48 @@ def results( input_dir, verbose):
                        )
 
 
-
      # Create macroscopic labels
 
-     util.iw_subprocess( ['cenc_aseg_labels.sh'], True, True, False)
+     labels.extract(os.path.join( cenc_dirs['results']['dirs']['labels'], 'aseg.nii.gz'), [], [10, 11, 12, 13, 17, 18], 
+             os.path.join( cenc_dirs['results']['dirs']['labels'],'gm.left_subcortical.nii.gz' ), merge=1)
+     
+     labels.extract(os.path.join( cenc_dirs['results']['dirs']['labels'], 'aseg.nii.gz'), [], [49, 50, 51, 52, 53, 54], 
+             os.path.join( cenc_dirs['results']['dirs']['labels'],'gm.right_subcortical.nii.gz' ), merge=1)
+
+     labels.extract(os.path.join( cenc_dirs['results']['dirs']['labels'], 'aseg.nii.gz'), [], [8, 47], 
+             os.path.join( cenc_dirs['results']['dirs']['labels'],'gm.cerebral_cortex.nii.gz' ), merge=1)
+
+     labels.extract(os.path.join( cenc_dirs['results']['dirs']['labels'], 'aseg.nii.gz'), [], [3, 42], 
+             os.path.join( cenc_dirs['results']['dirs']['labels'],'gm.cerebellum.nii.gz'), merge=1)
+
+     labels.extract(os.path.join( cenc_dirs['results']['dirs']['labels'], 'aseg.nii.gz'), [], [2, 41], 
+             os.path.join( cenc_dirs['results']['dirs']['labels'],'wm.cerebral.nii.gz'), merge=1)
+
+     labels.extract(os.path.join( cenc_dirs['results']['dirs']['labels'], 'aseg.nii.gz'), [], [7,46], 
+             os.path.join( cenc_dirs['results']['dirs']['labels'],'wm.cerebellum.nii.gz'), merge=1)
+
+     labels.extract(os.path.join( cenc_dirs['results']['dirs']['labels'], 'aseg.nii.gz'), [], [4,43], 
+             os.path.join( cenc_dirs['results']['dirs']['labels'],'ventricles.nii.gz'), merge=1)
+
+     # Create GM subcortical mask
+     util.iw_subprocess(['fslmaths',
+                         os.path.join( cenc_dirs['results']['dirs']['labels'],'gm.left_subcortical.nii.gz' ),
+                         '-add',
+                         os.path.join( cenc_dirs['results']['dirs']['labels'],'gm.right_subcortical.nii.gz' ),
+                         os.path.join( cenc_dirs['results']['dirs']['labels'],'gm.subcortical.nii.gz' )
+                         ])
+
+     os.remove( os.path.join( cenc_dirs['results']['dirs']['labels'],'gm.left_subcortical.nii.gz' ) )
+     os.remove( os.path.join( cenc_dirs['results']['dirs']['labels'],'gm.right_subcortical.nii.gz' ) )
+
+     # Brain extraction nu.nii.gz
+     util.iw_subprocess(['fslmaths', 
+                         os.path.join( cenc_dirs['results']['dirs']['images'], 'nu.nii.gz'),
+                         '-mas', 
+                         os.path.join( cenc_dirs['results']['dirs']['labels'], 'mask.nii.gz'),
+                         os.path.join( cenc_dirs['results']['dirs']['images'], 'nu_brain.nii.gz')])
+
+
 
 
 def status_run( input_dir, verbose ):
@@ -150,18 +188,17 @@ def status_results( input_dir, verbose ):
 
      cenc_dirs = cenc.directories( input_dir )
 
-     result_files = [ os.path.join( cenc_dirs['results']['dirs']['labels'], 'gm.left_subcortical.nii.gz' ),
-                      os.path.join( cenc_dirs['results']['dirs']['labels'], 'gm.right_subcortical.nii.gz'),
-                      os.path.join( cenc_dirs['results']['dirs']['labels'], 'gm.cerebral_cortex.nii.gz'  ),
-                      os.path.join( cenc_dirs['results']['dirs']['labels'], 'gm.cerebellum_cortex.nii.gz'),
+     result_files = [ os.path.join( cenc_dirs['results']['dirs']['labels'], 'gm.cerebral_cortex.nii.gz'  ),
+                      os.path.join( cenc_dirs['results']['dirs']['labels'], 'gm.cerebellum.nii.gz'),
                       os.path.join( cenc_dirs['results']['dirs']['labels'], 'wm.cerebral.nii.gz'         ),
                       os.path.join( cenc_dirs['results']['dirs']['labels'], 'wm.cerebellum.nii.gz'       ),
+                      os.path.join( cenc_dirs['results']['dirs']['labels'], 'ventricles.nii.gz'       ),
                       os.path.join( cenc_dirs['results']['dirs']['labels'], 'nu.nii.gz'       ),
                       os.path.join( cenc_dirs['results']['dirs']['images'], 'nu.nii.gz'       ),
                       os.path.join( cenc_dirs['results']['dirs']['images'], 'nu_brain.nii.gz'       )
                       ]
 
-     freesurfer_status_results = util.check_files(result_files, False)
+     freesurfer_status_results = util.check_files(result_files, True)
 
      if verbose:
           print( cenc_dirs['cenc']['id'] + ', cenc_freesurfer, results, ' + str(freesurfer_status_results) )
@@ -202,6 +239,7 @@ def main():
     #     parser.add_argument("--status_results",   help="Check Freesurfer results status",  action="store_true", default=False )
 
     parser.add_argument('-v', '--verbose', help="Verbose flag", action="store_true", default=False)
+    parser.add_argument('--debug', help="Debug flag", action="store_true", default=False)
 
     inArgs = parser.parse_args()
 
@@ -216,7 +254,7 @@ def main():
                                                cenc_dirs['freesurfer']['flair']
                                                )
 
-    if inArgs.verbose:
+    if inArgs.debug:
         print(json.dumps(fs_info, indent=4, ensure_ascii=True, sort_keys=False))
 
     #
