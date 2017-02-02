@@ -406,7 +406,7 @@ def main():
 
     parser = argparse.ArgumentParser(prog='cenc_wmlesions')
 
-    parser.add_argument('--in_dir',   help='Participant directory', default=os.getcwd() )
+    parser.add_argument('-i','--in_dir',   help='Participant directory', default=os.getcwd() )
     parser.add_argument('--prepare',  help='Gather necessary inputs for Freesurfer analysis', action='store_true', default=False )
 
     parser.add_argument("--methods", help="Methods [all, 01_register, 02_lpa, 03_stats]", nargs='*',

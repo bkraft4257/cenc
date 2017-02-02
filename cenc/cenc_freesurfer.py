@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 
@@ -18,6 +18,7 @@ import nipype.interfaces.fsl as fsl
 import nipype.interfaces.freesurfer as fs 
 from   nipype.pipeline.engine import Workflow, Node
 
+import recon_stats 
 
 #----------------------------------------------------------------------------------------------------------------------
 #
@@ -129,16 +130,14 @@ def results( input_dir, verbose):
 
      # Create macroscopic labels
 
-     labels.extract(os.path.join( cenc_dirs['results']['dirs']['labels'], 'aseg.nii.gz'), [], [10, 11, 12, 13, 17, 18], 
-             os.path.join( cenc_dirs['results']['dirs']['labels'],'gm.left_subcortical.nii.gz' ), merge=1)
+     labels.extract(os.path.join( cenc_dirs['results']['dirs']['labels'], 'aseg.nii.gz'), [], 
+                    [10, 11, 12, 13, 17, 18, 49, 50, 51, 52, 53, 54], 
+                    os.path.join( cenc_dirs['results']['dirs']['labels'],'gm.cortical.nii.gz' ), merge=1)
      
-     labels.extract(os.path.join( cenc_dirs['results']['dirs']['labels'], 'aseg.nii.gz'), [], [49, 50, 51, 52, 53, 54], 
-             os.path.join( cenc_dirs['results']['dirs']['labels'],'gm.right_subcortical.nii.gz' ), merge=1)
-
-     labels.extract(os.path.join( cenc_dirs['results']['dirs']['labels'], 'aseg.nii.gz'), [], [8, 47], 
+     labels.extract(os.path.join( cenc_dirs['results']['dirs']['labels'], 'aseg.nii.gz'), [], [3,42], 
              os.path.join( cenc_dirs['results']['dirs']['labels'],'gm.cerebral_cortex.nii.gz' ), merge=1)
 
-     labels.extract(os.path.join( cenc_dirs['results']['dirs']['labels'], 'aseg.nii.gz'), [], [3, 42], 
+     labels.extract(os.path.join( cenc_dirs['results']['dirs']['labels'], 'aseg.nii.gz'), [], [8, 47], 
              os.path.join( cenc_dirs['results']['dirs']['labels'],'gm.cerebellum.nii.gz'), merge=1)
 
      labels.extract(os.path.join( cenc_dirs['results']['dirs']['labels'], 'aseg.nii.gz'), [], [2, 41], 
@@ -150,24 +149,12 @@ def results( input_dir, verbose):
      labels.extract(os.path.join( cenc_dirs['results']['dirs']['labels'], 'aseg.nii.gz'), [], [4,43], 
              os.path.join( cenc_dirs['results']['dirs']['labels'],'ventricles.nii.gz'), merge=1)
 
-     # Create GM subcortical mask
-     util.iw_subprocess(['fslmaths',
-                         os.path.join( cenc_dirs['results']['dirs']['labels'],'gm.left_subcortical.nii.gz' ),
-                         '-add',
-                         os.path.join( cenc_dirs['results']['dirs']['labels'],'gm.right_subcortical.nii.gz' ),
-                         os.path.join( cenc_dirs['results']['dirs']['labels'],'gm.subcortical.nii.gz' )
-                         ])
-
-     os.remove( os.path.join( cenc_dirs['results']['dirs']['labels'],'gm.left_subcortical.nii.gz' ) )
-     os.remove( os.path.join( cenc_dirs['results']['dirs']['labels'],'gm.right_subcortical.nii.gz' ) )
-
      # Brain extraction nu.nii.gz
      util.iw_subprocess(['fslmaths', 
                          os.path.join( cenc_dirs['results']['dirs']['images'], 'nu.nii.gz'),
                          '-mas', 
                          os.path.join( cenc_dirs['results']['dirs']['labels'], 'mask.nii.gz'),
                          os.path.join( cenc_dirs['results']['dirs']['images'], 'nu_brain.nii.gz')])
-
 
 
 
@@ -198,7 +185,7 @@ def status_results( input_dir, verbose ):
                       os.path.join( cenc_dirs['results']['dirs']['images'], 'nu_brain.nii.gz'       )
                       ]
 
-     freesurfer_status_results = util.check_files(result_files, True)
+     freesurfer_status_results = util.check_files(result_files, False)
 
      if verbose:
           print( cenc_dirs['cenc']['id'] + ', cenc_freesurfer, results, ' + str(freesurfer_status_results) )
@@ -215,7 +202,7 @@ def main():
 
     parser = argparse.ArgumentParser(prog='cenc_freesurfer')
 
-    parser.add_argument("--in_dir", help="Participant directory", default=os.getcwd())
+    parser.add_argument('-i', "--in_dir", help="Participant directory", default=os.getcwd())
 
     parser.add_argument("--prepare", help="Gather necessary inputs for Freesurfer analysis", action="store_true",
                         default=False)
@@ -296,7 +283,6 @@ def main():
             if not status_results(inArgs.in_dir, False) or inArgs.results_force:
                 results(inArgs.in_dir, inArgs.verbose)
             else:
-
                 print(cenc_dirs['cenc']['id'] + ': cenc_freesurfer.py --results has already been run')
                 sys.exit()
         else:
@@ -317,7 +303,12 @@ def main():
     # RedCAP
 
     if inArgs.redcap:
-         redcap_upload()
+         s = recon_stats.Subject(cenc_dirs['cenc']['id']) # where SUBJECTID is an identifier for a subject living in SUBJECTS_DIR
+         #         print(dir(s))
+         s.get_measures()
+         #        data = s.upload_dict()
+         #       print(data)
+
         
 
 #

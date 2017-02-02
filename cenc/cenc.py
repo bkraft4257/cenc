@@ -94,7 +94,6 @@ def participant_id(in_dir, cenc_dir=os.getenv('CENC_MRI_DATA'), acrostic_flag=Tr
 
 
 def directories( input_dir ):
-     
      cenc_participant_id, cenc_participant_dir, cenc_participant_exists = participant_id( input_dir )
 
      if not cenc_participant_exists:
@@ -123,11 +122,24 @@ def directories( input_dir ):
 
      # CENC Final Results
 
-     results_dict = { 'dirs': {'root':  cenc_dict['results'],
-                               'labels': os.path.join( cenc_dict['results'], 'labels'),
-                               'images': os.path.join( cenc_dict['results'], 'images')
-                               }
+     results_labels_dir =  os.path.join( cenc_dict['results'], 'labels')
+
+     cenc_labels =  { 'gm.cortical': os.path.join( results_labels_dir,  'gm.cerebral_cortex.nii.gz'),
+                      'gm.subcortical': os.path.join( results_labels_dir,  'gm.subcortical.nii.gz'),
+                      'wm.cerebral': os.path.join( results_labels_dir,  'wm.cerebral.nii.gz'),
+                      'wm.cerebellum': os.path.join( results_labels_dir,  'wm.cerebellum.nii.gz'),
+                      'ventricles': os.path.join( results_labels_dir,  'ventricles.nii.gz'),
+                      'lesions': os.path.join( results_labels_dir,  'wmlesions_lpa_mask.nii.gz')
                       }
+
+     results_dict = { 'dirs': {'root':  cenc_dict['results'],
+                               'labels': results_labels_dir,
+                               'images': os.path.join( cenc_dict['results'], 'images')
+                               },
+                      'labels': cenc_labels
+                      }
+
+
 
 
      # Freesurfer Analysis
@@ -188,7 +200,6 @@ def directories( input_dir ):
                  'labels' : mt_labels
                  }
 
-
      # SWI Transfer
 
      swi_dir = util.path_relative_to( cenc_dict['structural'], 'swi' )
@@ -219,7 +230,6 @@ def directories( input_dir ):
 
 
      # Return
-
      return { 'cenc':cenc_dict, 'results':results_dict, 'freesurfer':freesurfer_dict, 'wmlesions':wmlesions_dict, 
               'mt':mt_dict, 'swi':swi_dict }
 
@@ -258,7 +268,6 @@ def create_mask(in_brainmask, in_aseg, mask ):
 
 def print_json_redcap_instrument(json_filename):
     """ Print REdCap instrument measures to a JSON file"""
-
 
     with open(json_filename, 'r') as infile:
         print('')

@@ -197,18 +197,13 @@ def methods_write_json_redcap_mt_instrument(input_dir, verbose):
 
     mtr = os.path.join(cenc_dirs['mt']['dirs']['register'], 'mtr.nii.gz')
 
-    label_list = [os.path.join(cenc_dirs['mt']['dirs']['input'], 'gm.cerebral_cortex.nii.gz'),
-    os.path.join(cenc_dirs['mt']['dirs']['input'], 'gm.subcortical.nii.gz'),
-    os.path.join(cenc_dirs['mt']['dirs']['input'], 'wm.cerebral.nii.gz'),
-    os.path.join(cenc_dirs['mt']['dirs']['input'], 'wmlesions_lpa_mask.nii.gz')
-    ]
-
     pandas.set_option('expand_frame_repr', False)
 
-    df_stats_gm_cortical = labels.measure(label_list[0], mtr)
-    df_stats_gm_subcortical = labels.measure(label_list[1], mtr)
-    df_stats_wm_cerebral = labels.measure(label_list[2], mtr)
-    df_stats_wm_lesions = labels.measure(label_list[3], mtr)
+    df_stats_gm_cortical = labels.measure(cenc_dirs['results']['labels']['gm.cortical'], mtr)
+    df_stats_gm_subcortical = labels.measure(cenc_dirs['results']['labels']['gm.subcortical'], mtr)
+    df_stats_wm_cerebral = labels.measure(cenc_dirs['results']['labels']['wm.cerebral'], mtr )
+    df_stats_ventricles = labels.measure(cenc_dirs['results']['labels']['ventricles'], mtr)
+    df_stats_wm_lesions = labels.measure(cenc_dirs['results']['labels']['lesions'], mtr)
 
     dict_redcap = OrderedDict((('subject_id', cenc_dirs['cenc']['id']),
                                ('mt_analyst', getpass.getuser()),
@@ -219,6 +214,8 @@ def methods_write_json_redcap_mt_instrument(input_dir, verbose):
                                ('mt_gm_subcortical_std','{0:4.3f}'.format(df_stats_gm_subcortical['std'].values[0])),
                                ('mt_wm_cortical_mean', '{0:4.3f}'.format(df_stats_wm_cerebral['mean'].values[0])),
                                ('mt_wm_cortical_std', '{0:4.3f}'.format(df_stats_wm_cerebral['std'].values[0])),
+                               ('mt_ventricles_mean', '{0:4.3f}'.format(df_stats_ventricles['mean'].values[0])),
+                               ('mt_ventricles_std', '{0:4.3f}'.format(df_stats_ventricles['std'].values[0])),
                                ('mt_wmlesions_mean', '{0:4.3f}'.format(df_stats_wm_lesions['mean'].values[0])),
                                ('mt_wmlesions_std', '{0:4.3f}'.format(df_stats_wm_lesions['std'].values[0]))
                                )
@@ -361,7 +358,7 @@ def main():
 
     parser = argparse.ArgumentParser(prog='cenc_mt')
 
-    parser.add_argument("--in_dir", help="Participant directory", default=os.getcwd())
+    parser.add_argument('-i', "--in_dir", help="Participant directory", default=os.getcwd())
 
     parser.add_argument("--cenc_data_dir", help="CENC data directory", default=os.getenv('CENC_MRI_DATA'))
     parser.add_argument("--cenc_freesurfer_dir", help="CENC data directory", default=os.getenv('CENC_SUBJECTS_DIR'))
