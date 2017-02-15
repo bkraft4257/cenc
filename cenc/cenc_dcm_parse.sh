@@ -16,6 +16,7 @@ sed -i -e  "/sag_swi_rs03/d"                01.${basename}
 sed -i -e  "s/sag_swi_rs04/swi/g"           01.${basename}
 
 sed -i -e  "s/sag_t2tse_rs01/t2tse/g" 01.${basename}
+sed -i -e  "s/sag_t2tse_with_fatsat_rs01/t2tse_fatsat/g" 01.${basename}
 
 sed -i -e  "s/sag_t2flair_rs01/t2flair/g" 01.${basename}
 
@@ -58,8 +59,12 @@ sed -i -e  "/sag_t2tse_rs01/d" 01.${basename}
 sed -i -e  "/sag_t2flair_rs01/d" 01.${basename}
 sed -i -e  "/sag_mt_rs01/d" 01.${basename}
 
+sed -i -e  "/sag_/d" 01.${basename}
+#sed -i -e  "s/_rs01//g" 01.${basename}
+#sed -i -e  "/_rs02/d" 01.${basename}
 
 sort  -k 4,4  -k 1,1n 01.${basename} > 02.${basename}
+
 
 dcm_group  02.${basename} > ${basename}.draft
 
