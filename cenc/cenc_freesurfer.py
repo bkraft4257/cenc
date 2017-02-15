@@ -132,7 +132,7 @@ def results( input_dir, verbose):
 
      labels.extract(os.path.join( cenc_dirs['results']['dirs']['labels'], 'aseg.nii.gz'), [], 
                     [10, 11, 12, 13, 17, 18, 49, 50, 51, 52, 53, 54], 
-                    os.path.join( cenc_dirs['results']['dirs']['labels'],'gm.cortical.nii.gz' ), merge=1)
+                    os.path.join( cenc_dirs['results']['dirs']['labels'],'gm.subcortical.nii.gz' ), merge=1)
      
      labels.extract(os.path.join( cenc_dirs['results']['dirs']['labels'], 'aseg.nii.gz'), [], [3,42], 
              os.path.join( cenc_dirs['results']['dirs']['labels'],'gm.cerebral_cortex.nii.gz' ), merge=1)
