@@ -24,6 +24,6 @@ cd ${cencParticipant}
 ln -s ../20* .
 
 cd ..
-tar -hzcvf ${cencParticipant}.tar.gz  ${cencParticipant}
+tar -hzcvf ${cencParticipant}.dicom.tar.gz  ${cencParticipant}
 
 rm -rf ${cencParticipant}

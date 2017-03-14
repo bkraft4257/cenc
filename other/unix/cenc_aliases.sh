@@ -20,7 +20,7 @@ alias cenc_swi='${CENC_PYTHON_PATH}/cenc_swi.py'
 alias cenc_wmlesions='${CENC_PYTHON_PATH}/cenc_wmlesions.py'
 alias cenc_fmri_gather='${CENC_PYTHON_PATH}/fmri_gather.py'
 
-alias cenc_update_participant_list='ls -1d ${CENC_MRI_DATA}/34P1[0-9][0-9][0-9] | tee ${CENC_MRI_DATA}/participant.list'
+alias cenc_update_participants="cenc_update_participant_list"
 
 alias cenc_lrt_participants='ls -1drt ${CENC_MRI_DATA}/34P1[0-9][0-9][0-9]'
 alias cenc_llrt_participants='ls -ldrt ${CENC_MRI_DATA}/34P1[0-9][0-9][0-9]'
@@ -41,6 +41,18 @@ alias cdcm='cd $CENC_MATLAB;  echo; ls;  echo'
 
 alias cfs='echo; echo $SUBJECTS_DIR; SUBJECTS_DIR=$CENC_SUBJECTS_DIR; echo $SUBJECTS_DIR; echo'
 
+## Functions
+#
+
+cenc_update_participant_list() { 
+    echo "Updating cenc_update_participant_list"
+
+    ls -1d ${CENC_MRI_DATA}/34P1[0-9][0-9][0-9] > ${CENC_MRI_DATA}/participant.list
+    grep -o "34P1[0-9][0-9][0-9]" ${CENC_MRI_DATA}/participant.list | sort > ${CENC_MRI_DATA}/acrostic.list
+
+}
+
+
 ctf_sed() {
     # I had trouble getting the conversion to lower case working properly
 
@@ -54,8 +66,7 @@ ctf_sed() {
 
 }
 
-## Functions
-#
+
 cdcencd() { 
     cdcd $1
 }
