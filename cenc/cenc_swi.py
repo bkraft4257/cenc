@@ -18,90 +18,20 @@ import getpass
 import subprocess
 import shutil
 
-def swi_config(in_dir, verbose=False):
-
-     config = {'dirs': { 'input': os.path.abspath(in_dir), 
-                         'working': os.path.abspath( os.path.join( in_dir, '..','methods') )
-                         },
-
-               'inputs': { 't1w': os.path.abspath(os.path.join(in_dir, 'nu.nii.gz')), 
-                           't1w_brain': os.path.abspath(os.path.join(in_dir, 'nu_brain.nii.gz')), 
-                           'swi': os.path.abspath(os.path.join(in_dir, 'swi.nii.gz')), 
-                           'swi_magnitude': os.path.abspath(os.path.join(in_dir, 'swi_magnitude.nii.gz')), 
-                           'swi_phase': os.path.abspath(os.path.join(in_dir, 'swi_phase.nii.gz'))
-                           } 
-
-
-               }
-
-     dirs =  { 'input':   config['dirs']['input'],
-               'working': config['dirs']['working'],
-               'methods': { 'input'   : os.path.join( config['dirs']['working'], 'input'), 
-                            '01-register': os.path.join( config['dirs']['working'], '01-register'), 
-                            'results'   : os.path.join( config['dirs']['working'], 'results') 
-                            } 
-               }
-
-     methods_00_input = { 'dir':os.path.join( config['dirs']['working'], 'input'), 
-
-                           'inputs': [  config['inputs']['t1w'],
-                                        config['inputs']['t1w_brain'],
-                                        config['inputs']['swi'],
-                                        config['inputs']['swi_magnitude'],
-                                        config['inputs']['swi_phase']
-                                        ],
-
-                           'outputs': [ os.path.join( dirs['methods']['input'], 'nu.nii.gz'), 
-                                        os.path.join( dirs['methods']['input'], 'nu_brain.nii.gz'),
-                                        os.path.join( dirs['methods']['input'], 'swi.nii.gz'),
-                                        os.path.join( dirs['methods']['input'], 'swi_magnitude.nii.gz'),
-                                        os.path.join( dirs['methods']['input'], 'swi_phase.nii.gz')
-                                        ]
-                           }
-
-
-     methods_01_register = { 'dir': dirs['methods']['01-register'],
-
-                             'inputs': methods_00_input['outputs'],
-                                                                                         
-                             'outputs': [ os.path.join( dirs['methods']['01-register'], 'swi_Affine_nu__swi_magnitude_0GenericAffine.mat'),
-                                          os.path.join( dirs['methods']['01-register'], 'swi_Affine_nu__swi_magnitude.nii.gz'),
-                                          os.path.join( dirs['methods']['01-register'], 'swi_Affine_nu__swi_phase.nii.gz'),
-                                          os.path.join( dirs['methods']['01-register'], 'swi_Affine_nu__swi.nii.gz')
-                                          ]
-                           }
-
-     methods_results = { 'dir': dirs['methods']['02-stats'],
-
-                          'inputs': methods_00_input['outputs'],
-                          
-                          'outputs': [ os.path.join( dirs['methods']['01-register'], 't2flair_Affine_nu__t2flair_Warped.nii.gz')
-                                       ]
-                           }
-
- 
-     methods= {'input': methods_00_input, 
-               '01-register': methods_01_register,
-               'results':methods_results,
-                }
-
-     dict  = { 'config': config, 'dirs':dirs, 'methods':methods}
-               
-     return dict
-
-
 
 #=======================================================================================================================
 # Prepare
 
-def swi_link_inputs( input_dir, link_to_dir, change_to_dir = True ):
+def swi_info(cenc_info):
+     swi_info = cenc_dirs['swi']
+     return swi_info
 
-     cenc_dirs = cenc.directories( input_dir )
+
+def swi_link_inputs( swi_info, link_to_dir, change_to_dir = True ):
 
      util.mkcd_dir( [ link_to_dir ], change_to_dir )
 
-     input_files = cenc_dirs['swi']['inputs']
-     label_files = cenc_dirs['swi']['labels']
+     input_files = swi_info['inputs']
 
      util.link_inputs( input_files + label_files, link_to_dir )
 
@@ -112,13 +42,13 @@ def prepare( input_dir, verbose=False ):
      if verbose:
           print('Entering cenc_swi.py prepare')
 
-     cenc_dirs = cenc.directories( input_dir )
+     swi_info = cenc.directories( input_dir )
 
-     input_files = cenc_dirs['swi']['inputs']
-     label_files = cenc_dirs['swi']['labels']
+     input_files = swi_info['swi']['inputs']
+     label_files = swi_info['swi']['labels']
 
-     swi_link_inputs( input_dir, cenc_dirs['swi']['dirs']['input'] )
-     swi_link_inputs( input_dir, cenc_dirs['swi']['dirs']['input'] )
+     swi_link_inputs( input_dir, swi_info['swi']['dirs']['input'] )
+     swi_link_inputs( input_dir, swi_info['swi']['dirs']['input'] )
 
      return
 
@@ -181,8 +111,8 @@ def methods_00_input( config, verbose ):
 def methods_01_register( input_dir, verbose=False):
 
      # Register SWI images to nu.nii.gz
-     cenc_dirs = cenc.directories( input_dir )
-     swi_link_inputs( input_dir, cenc_dirs['swi']['dirs']['register'] )
+     cenc_info = cenc.directories( input_dir )
+     swi_link_inputs( input_dir, cenc_info['swi']['dirs']['register'] )
  
      ants_register('swi_magnitude')
 
@@ -221,31 +151,31 @@ def methods_02_stats(config, verbose=False):
 def results( input_dir ):
     """ Gather results and write the MagTran JSON output file"""
 
-    cenc_dirs = cenc.directories( input_dir )
+    cenc_info = cenc.directories( input_dir )
 
-    swi_input_dir       = cenc_dirs['swi']['dirs']['input']
-    swi_01_register_dir = cenc_dirs['swi']['dirs']['register']
-    swi_results_dir     = cenc_dirs['swi']['dirs']['results']
+    swi_input_dir       = cenc_info['swi']['dirs']['input']
+    swi_01_register_dir = cenc_info['swi']['dirs']['register']
+    swi_results_dir     = cenc_info['swi']['dirs']['results']
 
     util.mkcd_dir( [ swi_results_dir ], True)
 
-    result_files = [ [  os.path.join( cenc_dirs['swi']['dirs']['register'], 'swi_Affine_nu__swi_m0_Warped.nii.gz'),
-    os.path.join( cenc_dirs['swi']['dirs']['results'],  'swi_Affine_nu__swi_m0.nii.gz')],
+    result_files = [ [  os.path.join( cenc_info['swi']['dirs']['register'], 'swi_Affine_nu__swi_m0_Warped.nii.gz'),
+    os.path.join( cenc_info['swi']['dirs']['results'],  'swi_Affine_nu__swi_m0.nii.gz')],
 
-    [ os.path.join( cenc_dirs['swi']['dirs']['register'], 'swi_Affine_nu__swi_m1_Warped.nii.gz'),
-    os.path.join( cenc_dirs['swi']['dirs']['results'],  'swi_Affine_nu__swi_m1.nii.gz')],
+    [ os.path.join( cenc_info['swi']['dirs']['register'], 'swi_Affine_nu__swi_m1_Warped.nii.gz'),
+    os.path.join( cenc_info['swi']['dirs']['results'],  'swi_Affine_nu__swi_m1.nii.gz')],
 
-    [ os.path.join( cenc_dirs['swi']['dirs']['results'], 'magtrans.json'),
-    os.path.join( cenc_dirs['swi']['dirs']['results'],  'magtrans.json') ],
+    [ os.path.join( cenc_info['swi']['dirs']['results'], 'magtrans.json'),
+    os.path.join( cenc_info['swi']['dirs']['results'],  'magtrans.json') ],
 
-    [ os.path.join( cenc_dirs['swi']['dirs']['register'], 'swir.nii.gz'),
-    os.path.join( cenc_dirs['swi']['dirs']['results'],  'swir.nii.gz') ],
+    [ os.path.join( cenc_info['swi']['dirs']['register'], 'swir.nii.gz'),
+    os.path.join( cenc_info['swi']['dirs']['results'],  'swir.nii.gz') ],
 
-    [ os.path.join( cenc_dirs['swi']['dirs']['input'],    'nu.nii.gz'),
-    os.path.join( cenc_dirs['swi']['dirs']['results'],  'nu.nii.gz') ],
+    [ os.path.join( cenc_info['swi']['dirs']['input'],    'nu.nii.gz'),
+    os.path.join( cenc_info['swi']['dirs']['results'],  'nu.nii.gz') ],
 
-    [ os.path.join( cenc_dirs['swi']['dirs']['register'], 'swir.nii.gz'),
-    os.path.join( cenc_dirs['results']['dirs']['images'],  'swir.nii.gz') ]
+    [ os.path.join( cenc_info['swi']['dirs']['register'], 'swir.nii.gz'),
+    os.path.join( cenc_info['results']['dirs']['images'],  'swir.nii.gz') ]
     ]
 
     for ii in result_files:
@@ -257,14 +187,14 @@ def results( input_dir ):
 def methods_write_json_redcap_swi_instrument(input_dir, verbose):
     """ Write MagTrans Instrument to JSON output file"""
 
-    cenc_dirs = cenc.directories(input_dir)
+    cenc_info = cenc.directories(input_dir)
 
-    swir = os.path.join(cenc_dirs['swi']['dirs']['register'], 'swir.nii.gz')
+    swir = os.path.join(cenc_info['swi']['dirs']['register'], 'swir.nii.gz')
 
-    labels = [os.path.join(cenc_dirs['swi']['dirs']['input'], 'gm.cerebral_cortex.nii.gz'),
-    os.path.join(cenc_dirs['swi']['dirs']['input'], 'gm.subcortical.nii.gz'),
-    os.path.join(cenc_dirs['swi']['dirs']['input'], 'wm.cerebral.nii.gz'),
-    os.path.join(cenc_dirs['swi']['dirs']['input'], 'wmlesions_lpa_mask.nii.gz')
+    labels = [os.path.join(cenc_info['swi']['dirs']['input'], 'gm.cerebral_cortex.nii.gz'),
+    os.path.join(cenc_info['swi']['dirs']['input'], 'gm.subcortical.nii.gz'),
+    os.path.join(cenc_info['swi']['dirs']['input'], 'wm.cerebral.nii.gz'),
+    os.path.join(cenc_info['swi']['dirs']['input'], 'wmlesions_lpa_mask.nii.gz')
     ]
 
     pandas.set_option('expand_frame_repr', False)
@@ -274,7 +204,7 @@ def methods_write_json_redcap_swi_instrument(input_dir, verbose):
     df_stats_wm_cerebral = iw_labels.measure_image_stats(labels[2], swir)
     df_stats_wm_lesions = iw_labels.measure_image_stats(labels[3], swir)
 
-    dict_redcap = OrderedDict((('subject_id', cenc_dirs['cenc']['id']),
+    dict_redcap = OrderedDict((('subject_id', cenc_info['cenc']['id']),
                                ('swi_analyst', getpass.getuser()),
                                ('swi_datetime', '{:%Y-%b-%d %H:%M:%S}'.format(datetime.datetime.now())),
                                ('swi_gm_cortical_mean', '{0:4.3f}'.format(df_stats_gm_cortical['mean'].values[0])),
@@ -288,7 +218,7 @@ def methods_write_json_redcap_swi_instrument(input_dir, verbose):
                                )
                               )
 
-    magtrans_json_filename =  os.path.join(cenc_dirs['swi']['dirs']['results'], 'magtrans.json')
+    magtrans_json_filename =  os.path.join(cenc_info['swi']['dirs']['results'], 'magtrans.json')
 
     with open(magtrans_json_filename, 'w') as outfile:
         json.dump(dict_redcap, outfile, indent=4, ensure_ascii=True, sort_keys=False)
@@ -302,16 +232,16 @@ def redcap(input_dir, verbose=False):
     pass
 
 def qa_results(in_dir, verbose=False):
-    cenc_dirs = cenc.directories(in_dir)
+    cenc_info = cenc.directories(in_dir)
 
-    cenc.print_json_redcap_instrument( os.path.join(cenc_dirs['swi']['dirs']['results'],'magtrans.json'))
+    cenc.print_json_redcap_instrument( os.path.join(cenc_info['swi']['dirs']['results'],'magtrans.json'))
 
-    result_files = [os.path.join(cenc_dirs['swi']['dirs']['results'], 'nu.nii.gz') + ':colormap=grayscale',
-                    os.path.join(cenc_dirs['swi']['dirs']['results'],
+    result_files = [os.path.join(cenc_info['swi']['dirs']['results'], 'nu.nii.gz') + ':colormap=grayscale',
+                    os.path.join(cenc_info['swi']['dirs']['results'],
                                  'swi_Affine_nu__swi_m0.nii.gz') + ':colormap=grayscale:visible=0',
-                    os.path.join(cenc_dirs['swi']['dirs']['results'],
+                    os.path.join(cenc_info['swi']['dirs']['results'],
                                  'swi_Affine_nu__swi_m1.nii.gz') + ':colormap=grayscale:visible=0',
-                    os.path.join(cenc_dirs['swi']['dirs']['results'],
+                    os.path.join(cenc_info['swi']['dirs']['results'],
                                  'swir.nii.gz') + ':colormap=jet:colorscale=0,0.6:opacity=0.5'
                     ]
 
@@ -335,31 +265,31 @@ def status_methods_01_register(config, verbose=False):
 
      input_dir = config['dirs']['input']
 
-     cenc_dirs = cenc.directories(input_dir)
+     cenc_info = cenc.directories(input_dir)
 
-     result_files = [os.path.join(cenc_dirs['swi']['dirs']['register'], 'swi_Affine_nu__swi_magnitude.nii.gz'),
-                     os.path.join(cenc_dirs['swi']['dirs']['register'], 'swi_Affine_nu__swi_phase.nii.gz'),
-                     os.path.join(cenc_dirs['swi']['dirs']['register'], 'swi_Affine_nu__swi.nii.gz')
+     result_files = [os.path.join(cenc_info['swi']['dirs']['register'], 'swi_Affine_nu__swi_magnitude.nii.gz'),
+                     os.path.join(cenc_info['swi']['dirs']['register'], 'swi_Affine_nu__swi_phase.nii.gz'),
+                     os.path.join(cenc_info['swi']['dirs']['register'], 'swi_Affine_nu__swi.nii.gz')
                      ]
 
      swi_status = util.check_files(result_files, False)
 
      if verbose:
-          print(cenc_dirs['cenc']['id'] + ', cenc_swi, ' + 'methods_01_register' + ', ' + str(swi_status))
+          print(cenc_info['cenc']['id'] + ', cenc_swi, ' + 'methods_01_register' + ', ' + str(swi_status))
           
      return swi_status
 
 
 def status_methods_02_stats( input_dir, verbose=False ):
 
-     cenc_dirs = cenc.directories( input_dir )
+     cenc_info = cenc.directories( input_dir )
      
-     result_files = [ os.path.join( cenc_dirs['swi']['dirs']['results'], 'magtrans.json') ]
+     result_files = [ os.path.join( cenc_info['swi']['dirs']['results'], 'magtrans.json') ]
  
      swi_status = util.check_files(result_files, False)
 
      if verbose:
-          print( cenc_dirs['cenc']['id'] + ', cenc_swi, ' + 'methods_02_stats' + ', ' + str(swi_status) )
+          print( cenc_info['cenc']['id'] + ', cenc_swi, ' + 'methods_02_stats' + ', ' + str(swi_status) )
 
      return swi_status
 
@@ -372,49 +302,49 @@ def status_methods( input_dir, verbose=False ):
 
 def status_results( input_dir, verbose=False ):
 
-     cenc_dirs = cenc.directories( input_dir )
+     cenc_info = cenc.directories( input_dir )
 
-     result_files = [ os.path.join( cenc_dirs['swi']['dirs']['results'],  'swi_Affine_nu__swi_m0.nii.gz'),
-                      os.path.join( cenc_dirs['swi']['dirs']['results'],  'swi_Affine_nu__swi_m1.nii.gz'), 
-                      os.path.join( cenc_dirs['swi']['dirs']['results'],  'swir.nii.gz'),
-                      os.path.join( cenc_dirs['swi']['dirs']['results'],  'nu.nii.gz'),
-                      os.path.join( cenc_dirs['results']['dirs']['images'],  'swir.nii.gz')
+     result_files = [ os.path.join( cenc_info['swi']['dirs']['results'],  'swi_Affine_nu__swi_m0.nii.gz'),
+                      os.path.join( cenc_info['swi']['dirs']['results'],  'swi_Affine_nu__swi_m1.nii.gz'), 
+                      os.path.join( cenc_info['swi']['dirs']['results'],  'swir.nii.gz'),
+                      os.path.join( cenc_info['swi']['dirs']['results'],  'nu.nii.gz'),
+                      os.path.join( cenc_info['results']['dirs']['images'],  'swir.nii.gz')
                       ]
 
      swi_status = util.check_files(result_files, False)
 
      if verbose:
-          print( cenc_dirs['cenc']['id'] + ', cenc_swi, ' + 'results' + ', ' + str(swi_status) )
+          print( cenc_info['cenc']['id'] + ', cenc_swi, ' + 'results' + ', ' + str(swi_status) )
 
      return swi_status
 
 
 def status_inputs( input_dir, verbose=False ):
 
-     cenc_dirs = cenc.directories( input_dir )
+     cenc_info = cenc.directories( input_dir )
 
-     input_files = cenc_dirs['swi']['inputs']
-     label_files = cenc_dirs['swi']['labels']
+     input_files = cenc_info['swi']['inputs']
+     label_files = cenc_info['swi']['labels']
 
      swi_status = util.check_files(input_files + label_files, False)
 
      if verbose:
-          print( cenc_dirs['cenc']['id'] + ', cenc_swi, ' + 'input' + ', ' + str(swi_status) )
+          print( cenc_info['cenc']['id'] + ', cenc_swi, ' + 'input' + ', ' + str(swi_status) )
 
      return swi_status
 
 
 def status_prepare( input_dir, verbose=False ):
 
-     cenc_dirs = cenc.directories( input_dir )
+     cenc_info = cenc.directories( input_dir )
 
-     input_files = cenc_dirs['swi']['inputs']
-     label_files = cenc_dirs['swi']['labels']
+     input_files = cenc_info['swi']['inputs']
+     label_files = cenc_info['swi']['labels']
 
      swi_status = util.check_files(input_files + label_files, False)
 
      if verbose:
-          print( cenc_dirs['cenc']['id'] + ', cenc_swi, ' + 'prepare' + ', ' + str(swi_status) )
+          print( cenc_info['cenc']['id'] + ', cenc_swi, ' + 'prepare' + ', ' + str(swi_status) )
 
      return swi_status
 
@@ -453,7 +383,7 @@ def main():
 
     # Prepare
 
-    cenc_dirs = cenc.directories(inArgs.in_dir)
+    cenc_info = cenc.directories(inArgs.in_dir)
 
     if inArgs.prepare:
 
@@ -468,7 +398,8 @@ def main():
 
     # Methods
             
-    config = swi_config( inArgs.in_dir, inArgs.verbose)
+    cenc_info = cenc.directories( inArgs.in_dir)
+#     config = swi_config( inArgs.in_dir, inArgs.verbose)
 
     if inArgs.methods is not None:
          methods( inArgs.methods, config, inArgs.verbose )
@@ -485,7 +416,7 @@ def main():
                 if inArgs.verbose:
                     print('cenc_swi.py: run has already been run')
         else:
-            print( cenc_dirs['cenc']['id'] + ': cenc_swi.py run must be executed before results')
+            print( cenc_info['cenc']['id'] + ': cenc_swi.py run must be executed before results')
 
 
     if inArgs.redcap:

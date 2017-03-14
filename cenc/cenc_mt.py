@@ -327,6 +327,9 @@ def status_inputs( input_dir, stdout=False, verbose=False ):
      input_files = cenc_dirs['mt']['inputs']
      label_files = cenc_dirs['mt']['labels']
 
+     print(input_files)
+     print(label_files)
+
      mt_status = util.check_files(input_files + label_files, verbose)
 
      if stdout:

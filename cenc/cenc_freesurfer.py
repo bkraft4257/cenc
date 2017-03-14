@@ -31,10 +31,14 @@ def prepare( input_dir ):
 
      util.mkcd_dir( [ cenc_dirs['freesurfer']['input']  ])
 
-     input_files = [ os.path.join( cenc_dirs['cenc']['reorient'], 't1w.nii.gz'),
-                     os.path.join( cenc_dirs['cenc']['reorient'], 't2flair.nii.gz'),
-                     os.path.join( cenc_dirs['cenc']['reorient'], 't2tse.nii.gz')
-                     ]
+     input_files = [ os.path.join( cenc_dirs['cenc']['reorient'], 't1w.nii.gz') ]
+
+#    Preliminary testing of Freesurfer with the T2FLAIR and T2_TSE has not been very successful.
+#    Removing them from the workflow. 
+#
+#     input_files = [ os.path.join( cenc_dirs['cenc']['reorient'], 't2flair.nii.gz'),
+#                     os.path.join( cenc_dirs['cenc']['reorient'], 't2tse.nii.gz')
+#                     ]
 
      util.link_inputs( input_files, cenc_dirs['freesurfer']['input'] )
 
@@ -51,8 +55,6 @@ def recon_all( input_dir ):
 
      freesurfer_command = [ 'recon-all', '-sd', cenc_dirs['cenc']['freesurfer_subjects_dir'],'-subjid', cenc_dirs['cenc']['id'],
                             '-all', '-i', 't1w.nii.gz',
-                            '-T2', 't2tse.nii.gz',
-                            '-FLAIR', 't2flair.nii.gz',
                             '-qcache',
                             '-measure', 'thickness',
                             '-measure', 'curv',
